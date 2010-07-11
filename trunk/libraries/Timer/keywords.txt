@@ -1,0 +1,8 @@
+Timer	KEYWORD1
+RealTimer	KEYWORD1
+tick	KEYWORD2
+once	KEYWORD2
+repeat	KEYWORD2
+enable	KEYWORD2
+disable	KEYWORD2
+destroy	KEYWORD2

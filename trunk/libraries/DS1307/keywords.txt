@@ -1,0 +1,4 @@
+DS1307	KEYWORD1
+setDateTime	KEYWORD2
+getDateTime	KEYWORD2
+sendDateToSerial	KEYWORD2

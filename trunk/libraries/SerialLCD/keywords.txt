@@ -1,0 +1,23 @@
+SerialLCD	KEYWORD1
+goTo	KEYWORD2
+clear	KEYWORD2
+clearLineOne	KEYWORD2
+clearLineTwo	KEYWORD2
+backlightOn	KEYWORD2
+backlightOff	KEYWORD2
+backLight	KEYWORD2
+goToLineOne	KEYWORD2
+goToLineTwo	KEYWORD2
+setSplash	KEYWORD2
+blink	KEYWORD2
+noblink KEYWORD2
+underline KEYWORD2
+nounderline KEYWORD2
+sright KEYWORD2
+sleft KEYWORD2
+reset	KEYWORD2
+spaces KEYWORD2
+moveLeft KEYWORD2
+moveRight KEYWORD2
+
+
