@@ -1,0 +1,31 @@
+#######################################
+# Syntax Coloring Map for AirSerial
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+AirSerial	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+
+begin	KEYWORD2
+end	KEYWORD2
+beginpacket	KEYWORD2
+endpacket	KEYWORD2
+receive	KEYWORD2
+packetavailable	KEYWORD2
+packetoverflow	KEYWORD2
+packetok	KEYWORD2
+packetlength	KEYWORD2
+getpacket	KEYWORD2
+clearpacket	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
