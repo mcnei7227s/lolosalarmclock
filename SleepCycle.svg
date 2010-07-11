@@ -47,7 +47,7 @@
      inkscape:guide-bbox="true"
      inkscape:zoom="1.0172043"
      inkscape:cx="435.13973"
-     inkscape:cy="232.5"
+     inkscape:cy="177.39423"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
@@ -292,6 +292,13 @@
        inkscape:vp_y="0 : 1000 : 0"
        inkscape:vp_x="0 : 0.5 : 1"
        sodipodi:type="inkscape:persp3d" />
+    <inkscape:perspective
+       id="perspective20228"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
   </defs>
   <image
      sodipodi:absref="/home/royerloic/sketchbook/lolosalarmclock/SleepCycle.svg-surface0-219.png"
@@ -442,24 +449,24 @@
        sodipodi:role="line"
        id="tspan20073-3-7"
        x="327.23947"
-       y="261.25229">~agitated sleep</tspan></text>
+       y="261.25229">~deep sleep</tspan></text>
   <text
      xml:space="preserve"
      style="font-size:19.20000076px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica Neue;-inkscape-font-specification:Helvetica Neue"
-     x="452.23691"
+     x="495.43704"
      y="192.96777"
      id="text18608-9-0"><tspan
        sodipodi:role="line"
        id="tspan18610-8-7"
-       x="452.23691"
+       x="495.43704"
        y="192.96777">Morning sleep,</tspan><tspan
        sodipodi:role="line"
-       x="452.23691"
+       x="495.43704"
        y="216.96777"
        id="tspan20175">agitated and </tspan><tspan
        sodipodi:role="line"
-       x="452.23691"
-       y="216.96777"
+       x="495.43704"
+       y="240.96777"
        id="tspan20181">dreaming</tspan></text>
   <text
      xml:space="preserve"
@@ -472,4 +479,33 @@
        id="tspan20179"
        x="594.76746"
        y="227.09302" /></text>
+  <g
+     transform="matrix(0.24812451,0,0,1,332.67182,51.940932)"
+     id="g20004-7">
+    <rect
+       y="215.0723"
+       x="278.80341"
+       height="1.572938"
+       width="276.05072"
+       id="rect18653-1-6"
+       style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.60603571;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <path
+       id="path18680-6-8"
+       d="m 278.80339,215.09937 0,12.5835"
+       style="fill:none;stroke:#000000;stroke-width:1.60603571px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       id="path18680-9-6-1"
+       d="m 554.81692,215.09937 0,12.5835"
+       style="fill:none;stroke:#000000;stroke-width:1.60603571px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+  </g>
+  <text
+     xml:space="preserve"
+     style="font-size:9.60000038px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;font-family:Helvetica Neue;-inkscape-font-specification:Helvetica Neue"
+     x="406.46933"
+     y="261.62976"
+     id="text20071-3"><tspan
+       sodipodi:role="line"
+       id="tspan20073-6"
+       x="406.46933"
+       y="261.62976">~deep sleep</tspan></text>
 </svg>
