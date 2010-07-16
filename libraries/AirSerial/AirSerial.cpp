@@ -7,17 +7,6 @@ AirSerial.cpp
 #define STARTSIGNALLENGTH	2
 #define BEGINOFPACKET ((char)B10101010)
 #define ENDOFPACKET ((char)B00000000)
-// 
-// Includes
-// 
-
-
-//
-// Private methods
-//
-
-
-
 
 
 //
@@ -38,11 +27,13 @@ AirSerial::~AirSerial()
 }
 
 
-
 //
 // Public methods
 //
 
+//
+// initialize
+//
 void AirSerial::begin(long _speed)
 {
   speed = _speed;
@@ -50,11 +41,13 @@ void AirSerial::begin(long _speed)
   clearpacket();
 }
 
+//
+// de-initialize 
+//
 void AirSerial::end()
 {
 
 }
-
 
 void AirSerial::beginpacket()
 {
@@ -89,6 +82,10 @@ void AirSerial::endpacket()
 	serial->print(ENDOFPACKET);	
 }
 
+//
+// This is a home-made checksum,
+// it is not really good .... 
+//
 void AirSerial::checksum(char b)
 {
 	check1 ^= b+check4;

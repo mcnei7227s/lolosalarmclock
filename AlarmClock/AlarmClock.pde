@@ -1,4 +1,8 @@
-
+//  Lolo's Alarm Clock
+//  Copyright: Loic Royer
+//  Creative license/GPL
+//  
+//
 
 
 #include <AirSerial.h>
@@ -11,13 +15,6 @@
 #include <Tone.h>
 #include <SerialLCD.h>
 #include <EEPROM.h>
-
-
-
-/*
- Created by Loic Royer
- 
- */
 
 #define baudrate        1200
 
