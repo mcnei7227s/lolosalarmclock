@@ -27,7 +27,7 @@ SerialLCD::SerialLCD(int pinLCD) : NewSoftSerial(0,pinLCD)
   //serial = NewSoftSerial(0, pinLCD);
   //serial.begin(9600);
   begin(9600);
-  bytelevelold = 100;
+  intlevelold = 100;
 }
 
 //
@@ -70,14 +70,16 @@ void SerialLCD::backlightOff()
 }
 
 
-void SerialLCD::backLight(float level)
+void SerialLCD::backLight(float floatlevel)
 {
-  char bytelevel = (char)(level*29);
-  if(abs(bytelevelold-bytelevel)>=2)
+	if(floatlevel<0) floatlevel=0;
+	else if(floatlevel>=1) floatlevel=1;
+  int intlevel = (int)(floatlevel*29);
+  if(abs(intlevelold-intlevel)>=2)
   {
     SerialLCD::backLightCommand();
-    print(129+bytelevel, BYTE);    
-    SerialLCD::bytelevelold = bytelevel;
+    print((char)intlevel, BYTE);    
+    SerialLCD::intlevelold = intlevel;
   }
 };
 
