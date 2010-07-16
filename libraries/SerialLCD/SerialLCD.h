@@ -48,7 +48,7 @@ public:
 	void setSplash();
 	void reset();
 
-	char bytelevelold;
+	int intlevelold;
 };
 
 #endif

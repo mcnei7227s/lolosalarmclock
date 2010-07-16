@@ -8,9 +8,10 @@
 #include <NewSoftSerial.h>
 #include <CapSense.h>
 #include <DS1307.h>
+#include <Tone.h>
 #include <SerialLCD.h>
 #include <EEPROM.h>
-#include <Tone.h>
+
 
 
 /*
@@ -200,7 +201,7 @@ void calibratetouch()
 
 void inline lcdrefreshinfo(void) 
 {
-  lcd.noblink();
+  //lcd.noblink();
   lcd.goToLineTwo();
   //Serial.println((int)displaymode);
   if(mainmode==0)
@@ -272,19 +273,21 @@ void inline lcdrefreshinfo(void)
   else if(mainmode == 1)
   {
     lcd.clearLineTwo();
-    lcd.spaces(5);
+    lcd.print("T");
+    lcd.spaces(4);
     lcd.print(B01011110,BYTE);
   }
   else if(mainmode == 2)
   {
     lcd.clearLineTwo();
-    lcd.spaces(8);
+    lcd.print("T");
+    lcd.spaces(7);
     lcd.print(B01011110,BYTE);
   }
   else if(mainmode == 3)
   {
     lcd.clearLineTwo();
-    lcd.print("  [");
+    lcd.print("A [");
     if(alarmhourstop<10) lcd.print(" ");
     lcd.print(alarmhourstop);
     lcd.print("]:");
@@ -295,7 +298,7 @@ void inline lcdrefreshinfo(void)
   else if(mainmode == 4)
   {
     lcd.clearLineTwo();
-    lcd.print("    ");
+    lcd.print("A   ");
     if(alarmhourstop<10) lcd.print(" ");
     lcd.print(alarmhourstop);
     lcd.print(":[");
@@ -306,7 +309,7 @@ void inline lcdrefreshinfo(void)
   else if(mainmode == 5 || mainmode == 6 || mainmode == 7)
   {
     lcd.clearLineTwo();
-    lcd.print("    ");
+    lcd.print("A   ");
     if(alarmhourstop<10) lcd.print(" ");
     lcd.print(alarmhourstop);
     lcd.print(":");
@@ -383,7 +386,8 @@ void inline backlightsensingrefresh(void)
 
 void inline backlightrefresh(void) 
 {
-  lcd.backLight(((float)valLightSensor)/1024); //
+  //lcd.backLight(((float)valLightSensor)/1024); //
+  delay(10);
 }
 
 void inline serialrefresh(void) 
@@ -497,8 +501,7 @@ void eventA()
     alarmthreshold = (alarmthreshold-1+100)%100;
     lcdrefreshinfo();
   }
-  
-  alarmlock = 0;
+  alarmtouch();
 }
 
 void eventC()
@@ -546,23 +549,26 @@ void eventC()
     alarmthreshold = (alarmthreshold+1)%100;
     lcdrefreshinfo();
   }
-
-  alarmlock = 0;
+  alarmtouch();
 }
 
 void eventB()
 {
   if(!mytone.isPlaying()) mytone.playSync(NOTE_A4,10);
-  mainmode = (mainmode+1)%8;      
-  if(mainmode==0)
+  if(alarmtouch())
   {
-    eeprom_write(alarmthreshold, alarmthreshold);
-    eeprom_write(alarmevents, alarmevents);
-    eeprom_write(alarmduration, alarmduration);
-    eeprom_write(alarmhourstop, alarmhourstop);
-    eeprom_write(alarmminutestop, alarmminutestop);
+    mainmode = (mainmode+1)%8; 
+    if(mainmode==0)
+    {
+      eeprom_write(alarmthreshold, alarmthreshold);
+      eeprom_write(alarmevents, alarmevents);
+      eeprom_write(alarmduration, alarmduration);
+      eeprom_write(alarmhourstop, alarmhourstop);
+      eeprom_write(alarmminutestop, alarmminutestop);
+    }
+    lcdrefreshinfo(); 
   }
-  lcdrefreshinfo(); 
+  
 }
 
 
@@ -579,8 +585,8 @@ void inline touchsensorrefresh(void)
   }/**/
 
   {
-    byte buttonA = touchdetector(capA,calA,valCapA,last,600,10);
-    byte buttonC = touchdetector(capC,calC,valCapC,last,600,10);  
+    byte buttonA = touchdetector(capA,calA,valCapA,last,400,10);
+    byte buttonC = touchdetector(capC,calC,valCapC,last,400,10);  
     if(buttonA && !buttonC)
     {
       eventA();
@@ -605,7 +611,7 @@ void inline touchsensorrefresh(void)
       valCapC=0;
     }
     
-    byte buttonB = touchdetector(capB,calB,valCapB,last,600,10);
+    byte buttonB = touchdetector(capB,calB,valCapB,last,400,10);
     if(buttonB && !buttonA && !buttonC)
     {
       eventB();
@@ -643,9 +649,10 @@ void inline accelrefresh(void)
 
 boolean inline startalarmtime(void)
 {
-  int alarmminutestart = (alarmminutestop+60-alarmduration)%60;
+  int alarmminutestart = (alarmminutestop+24*60-alarmduration)%60;
   int alarmhourstart = ((int)((float)alarmhourstop+((float)alarmminutestop/60)+24-((float)alarmduration/60)))%24;
-  
+  Serial.println(alarmminutestart);
+  Serial.println(alarmhourstart); 
  return  ((int)clock.hour==alarmhourstart) 
       && ((int)clock.minute==alarmminutestart);
 }
@@ -657,24 +664,43 @@ boolean inline stopalarmtime(void)
       && ((int)clock.minute==alarmminutestop);
 }
   
+boolean alarmtouch(void)
+{
+ if(alarmlock<=1)
+ {
+   return true;
+ }
+ else if ( ((int)clock.hour<alarmhourstop) || ( ((int)clock.hour==alarmhourstop)
+      && ((int)clock.minute<=alarmminutestop) ) )
+ {
+   alarmlock=1;
+   return false;
+ }
+ else
+ {
+   alarmlock=0;
+   return false;
+ }
+}
+
 
 int alarmfreq = 5;
 void inline alarm(void)
 {
-  if((startalarmtime() || true) && alarmlock==0)
+  if((startalarmtime() ) && alarmlock==0)
   {
     alarmlock=1;
   }
   
-  if((energyAccel>alarmthreshold || stopalarmtime()) && alarmlock==1)
+  if((energyAccel>alarmthreshold || stopalarmtime()) && alarmlock>=1)
   {
     alarmlock++;
-    mytone.playSync(NOTE_B0,10);
+    mytone.playSync(NOTE_B0,100);
   }  
   
   #define durationnote random(10,20)
   #define freqvariation random(0,500)
-  if(alarmlock>=alarmevents)
+  if((alarmlock-1)>=alarmevents)
   {
     mytone.playSync(NOTE_A5+freqvariation,durationnote);
     mytone.playSync(NOTE_B6+freqvariation,durationnote);
@@ -701,6 +727,8 @@ void inline alarm(void)
     mytone.playSync(NOTE_D8+freqvariation,durationnote);
 
   }  
+  Serial.print("alarmlock=");
+  Serial.println((int)alarmlock);
 }
 
 
