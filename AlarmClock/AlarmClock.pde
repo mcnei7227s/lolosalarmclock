@@ -41,6 +41,7 @@ struct config
   int alarmduration;
   int alarmhourstop;
   int alarmminutestop;
+  int alarmrepeats;
 } ;
 
 
@@ -69,6 +70,7 @@ int alarmevents;
 int alarmduration;
 int alarmhourstop;
 int alarmminutestop;
+int alarmrepeats;
 
 // 8 9 10 11 12
 //CapSense cap1  = CapSense(7, 8); 
@@ -121,6 +123,7 @@ void setup()
   eeprom_read(alarmduration, alarmduration);
   eeprom_read(alarmhourstop, alarmhourstop);
   eeprom_read(alarmminutestop, alarmminutestop);
+  eeprom_read(alarmrepeats, alarmrepeats);
 
   airserial.begin(baudrate);
   
@@ -184,6 +187,11 @@ void setup()
   lcd.clear();
   delay(1000);/**/
   
+  
+  /*clock.dayOfWeek=6;
+  clock.dayOfMonth=17;
+  clock.setDateTime();/**/
+  
 }
 
 void calibratetouch()
@@ -232,9 +240,16 @@ void inline lcdrefreshinfo(void)
       if(valDewPoint>=0 && valDewPoint<10) lcd.print(" ");
       lcd.print(valDewPoint);
       lcd.print(B11011111,BYTE);
-      lcd.print("dp ");
-      if(valGasSensorCal<100) lcd.print(" ");
-      if(valGasSensorCal<10) lcd.print(" ");
+      lcd.print("dp");
+      if(valGasSensorCal>=0)
+      {
+        if(valGasSensorCal<100) lcd.print("  ");
+        if(valGasSensorCal<10) lcd.print(" ");
+      }
+      else
+      {
+         if(valGasSensorCal>-10) lcd.print(" ");
+      }
       lcd.print(valGasSensorCal);
       lcd.print("%");
       lcd.print(B00101110,BYTE);
@@ -303,7 +318,7 @@ void inline lcdrefreshinfo(void)
     lcd.print(alarmminutestop);
     lcd.print("]");
   }
-  else if(mainmode == 5 || mainmode == 6 || mainmode == 7)
+  else if(mainmode == 5 || mainmode == 6 || mainmode == 7 || mainmode == 8 )
   {
     lcd.clearLineTwo();
     lcd.print("A   ");
@@ -326,6 +341,11 @@ void inline lcdrefreshinfo(void)
     {
       lcd.print(" t=[");
       lcd.print(alarmthreshold);
+    }
+    else if(mainmode == 8)
+    {
+      lcd.print(" r=[");
+      lcd.print(alarmrepeats);
     }
     lcd.print("]");
   }
@@ -372,7 +392,7 @@ void inline temphumrefresh(void)
 void inline gasrefresh(void) 
 {
   valGasSensor = analogRead(pinGasSensor); 
-  valGasSensorCal = valGasSensor-430+60+(valDewPoint*100)/16;
+  valGasSensorCal = valGasSensor-430+60+137+(valDewPoint*100)/16;
   //valGasSensor-430+(valDewPoint*100)/16;
 }
 
@@ -485,7 +505,7 @@ void eventA()
   }
   else if(mainmode==5)
   {
-    alarmduration = (alarmduration-1+180)%180;
+    alarmduration = (alarmduration-1+99)%100;
     lcdrefreshinfo();
   }
   else if(mainmode==6)
@@ -496,6 +516,11 @@ void eventA()
   else if(mainmode==7)
   {
     alarmthreshold = (alarmthreshold-1+100)%100;
+    lcdrefreshinfo();
+  }
+  else if(mainmode==8)
+  {
+    alarmrepeats = (alarmrepeats-1+15)%15;
     lcdrefreshinfo();
   }
   alarmtouch();
@@ -533,7 +558,7 @@ void eventC()
   }
   else if(mainmode==5)
   {
-    alarmduration = (alarmduration+1)%180;
+    alarmduration = (alarmduration+1)%100;
     lcdrefreshinfo();
   }
   else if(mainmode==6)
@@ -546,6 +571,11 @@ void eventC()
     alarmthreshold = (alarmthreshold+1)%100;
     lcdrefreshinfo();
   }
+  else if(mainmode==8)
+  {
+    alarmrepeats = (alarmrepeats+1)%15;
+    lcdrefreshinfo();
+  }
   alarmtouch();
 }
 
@@ -554,7 +584,7 @@ void eventB()
   if(!mytone.isPlaying()) mytone.playSync(NOTE_A4,10);
   if(alarmtouch())
   {
-    mainmode = (mainmode+1)%8; 
+    mainmode = (mainmode+1)%9; 
     if(mainmode==0)
     {
       eeprom_write(alarmthreshold, alarmthreshold);
@@ -562,6 +592,7 @@ void eventB()
       eeprom_write(alarmduration, alarmduration);
       eeprom_write(alarmhourstop, alarmhourstop);
       eeprom_write(alarmminutestop, alarmminutestop);
+      eeprom_write(alarmrepeats, alarmrepeats);      
     }
     lcdrefreshinfo(); 
   }
@@ -648,8 +679,8 @@ boolean inline startalarmtime(void)
 {
   int alarmminutestart = (alarmminutestop+24*60-alarmduration)%60;
   int alarmhourstart = ((int)((float)alarmhourstop+((float)alarmminutestop/60)+24-((float)alarmduration/60)))%24;
-  Serial.println(alarmminutestart);
-  Serial.println(alarmhourstart); 
+  //Serial.println(alarmminutestart);
+  //Serial.println(alarmhourstart); 
  return  ((int)clock.hour==alarmhourstart) 
       && ((int)clock.minute==alarmminutestart);
 }
@@ -681,12 +712,13 @@ boolean alarmtouch(void)
 }
 
 
-int alarmfreq = 5;
+int ringcounter = 0;
 void inline alarm(void)
 {
   if((startalarmtime() ) && alarmlock==0)
   {
     alarmlock=1;
+    ringcounter=0;
   }
   
   if((energyAccel>alarmthreshold || stopalarmtime()) && alarmlock>=1)
@@ -697,8 +729,9 @@ void inline alarm(void)
   
   #define durationnote random(10,20)
   #define freqvariation random(0,500)
-  if((alarmlock-1)>=alarmevents)
+  if((alarmlock-1)>=alarmevents && ringcounter<=(20*alarmrepeats))
   {
+    ringcounter++;
     mytone.playSync(NOTE_A5+freqvariation,durationnote);
     mytone.playSync(NOTE_B6+freqvariation,durationnote);
     mytone.playSync(NOTE_A6+freqvariation,durationnote);
@@ -722,10 +755,15 @@ void inline alarm(void)
     mytone.playSync(NOTE_A8+freqvariation,durationnote);
     mytone.playSync(NOTE_B7+freqvariation,durationnote);
     mytone.playSync(NOTE_D8+freqvariation,durationnote);
-
   }  
-  Serial.print("alarmlock=");
-  Serial.println((int)alarmlock);
+  
+  if(ringcounter>=(20*alarmrepeats))
+  {
+    ringcounter=0;
+    alarmlock=0;
+  }
+  //Serial.print("alarmlock=");
+  //Serial.println((int)alarmlock);
 }
 
 
